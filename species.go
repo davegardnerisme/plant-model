@@ -1,6 +1,6 @@
 package plantmodel
 
-import(
+import (
 	"github.com/skelterjohn/geom"
 )
 
@@ -21,19 +21,19 @@ type Species struct {
 
 func NewSpecies(name string) *Species {
 	return &Species{
-		name: name,
-		growthRate: 0.4,
-		maxR: 2.0,
+		name:                 name,
+		growthRate:           0.4,
+		maxR:                 2.0,
 		shadeToleranceGrowth: 0.2,
 		shadeToleranceMature: 0.8,
-		virility: 0.4,
-		spread: 75.0,
+		virility:             0.4,
+		spread:               75.0,
 	}
 }
 
 func (self *Species) spawnBounds(from geom.Coord) geom.Rect {
 	return geom.Rect{
 		geom.Coord{from.X - self.spread, from.Y - self.spread},
-		geom.Coord{from.X + self.spread, from.Y + self.spread},		
+		geom.Coord{from.X + self.spread, from.Y + self.spread},
 	}
 }

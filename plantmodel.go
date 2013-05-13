@@ -1,11 +1,11 @@
 package plantmodel
 
-import(
-	"github.com/skelterjohn/geom"	
+import (
+	"github.com/skelterjohn/geom"
 	"github.com/skelterjohn/geom/qtree"
-	"math/rand"	
-	"time"
 	"log"
+	"math/rand"
+	"time"
 )
 
 type PlantModel struct {
@@ -15,7 +15,7 @@ type PlantModel struct {
 func NewPlantModel(width, height int64) *PlantModel {
 	return &PlantModel{
 		qt: qtree.New(qtree.ConfigDefault(), geom.Rect{geom.Coord{0, 0}, geom.Coord{float64(width), float64(height)}}),
-		}
+	}
 }
 
 // plant quantity random seeds of this species
@@ -25,11 +25,11 @@ func (self *PlantModel) RandomSeed(species *Species, quantity int) {
 
 // plant quantity random seeds of this species within the specified bounds
 func (self *PlantModel) RandomBoundedSeed(species *Species, bounds geom.Rect, quantity int) {
-    rand.Seed(time.Now().UnixNano())
-	for i:=0; i<quantity; i++ {
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < quantity; i++ {
 		log.Println(self.qt.Bounds.Max)
-		x := bounds.Min.X + rand.Float64() * (bounds.Max.X - bounds.Min.X)
-		y := bounds.Min.Y + rand.Float64() * (bounds.Max.Y - bounds.Min.Y)
+		x := bounds.Min.X + rand.Float64()*(bounds.Max.X-bounds.Min.X)
+		y := bounds.Min.Y + rand.Float64()*(bounds.Max.Y-bounds.Min.Y)
 		plant := NewPlant(species, geom.Coord{x, y})
 		self.qt.Insert(plant)
 		log.Println("Seeding plant", plant)
@@ -38,7 +38,7 @@ func (self *PlantModel) RandomBoundedSeed(species *Species, bounds geom.Rect, qu
 
 // run simulation
 func (self *PlantModel) RunSimulation(years int) {
-	for y := 0; y<years ;y++ {
+	for y := 0; y < years; y++ {
 		for item := range self.qt.Iterate() {
 			plant := item.(*Plant)
 			plant.grow()
@@ -54,8 +54,8 @@ func (self *PlantModel) RunSimulation(years int) {
 func (self *PlantModel) Iterate() <-chan *Plant {
 	ch := make(chan *Plant, self.qt.Count)
 	for item := range self.qt.Iterate() {
-       ch <- item.(*Plant)
-    }
+		ch <- item.(*Plant)
+	}
 	close(ch)
 	return ch
 }
@@ -76,7 +76,7 @@ func (self *PlantModel) checkDomination(plant *Plant) (isDominated bool) {
 			log.Println("Removing", nearPlant, "dominated by", plant)
 			self.qt.Remove(nearPlant)
 		} else if plant.dominatedBy(nearPlant) {
-			log.Println("Removing", plant, "dominated by", nearPlant)			
+			log.Println("Removing", plant, "dominated by", nearPlant)
 			self.qt.Remove(plant)
 			isDominated = true
 		}
