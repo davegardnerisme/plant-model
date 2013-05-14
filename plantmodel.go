@@ -12,7 +12,7 @@ type PlantModel struct {
 	qt *qtree.Tree
 }
 
-func NewPlantModel(width, height int64) *PlantModel {
+func NewPlantModel(width, height int) *PlantModel {
 	return &PlantModel{
 		qt: qtree.New(qtree.ConfigDefault(), geom.Rect{geom.Coord{0, 0}, geom.Coord{float64(width), float64(height)}}),
 	}
@@ -51,6 +51,7 @@ func (self *PlantModel) RunSimulation(years int) {
 	}
 }
 
+// iterate over all plants
 func (self *PlantModel) Iterate() <-chan *Plant {
 	ch := make(chan *Plant, self.qt.Count)
 	for item := range self.qt.Iterate() {
@@ -60,8 +61,24 @@ func (self *PlantModel) Iterate() <-chan *Plant {
 	return ch
 }
 
+// get total number of plants in model
 func (self *PlantModel) Size() int {
 	return self.qt.Count
+}
+
+// iterate all plants in some bounding box (any intersecting this bb)
+func (self *PlantModel) IterateBounded(bounds geom.Rect) <-chan *Plant {
+	ch := make(chan *Plant)
+	go func() {
+		intersecting := make(map[qtree.Item]bool, 100)
+		self.qt.CollectIntersect(bounds, intersecting)
+		for item := range intersecting {
+			ch <- item.(*Plant)
+		}
+		close(ch)
+	}()
+
+	return ch
 }
 
 // check and kill any plants dominated by this plant or this plant if

@@ -12,7 +12,7 @@ var idgen *gosnow.SnowFlake
 type Plant struct {
 	id       uint64
 	position geom.Coord
-	age      int32
+	age      int
 	radius   float64
 	species  *Species
 }
