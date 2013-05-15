@@ -6,7 +6,15 @@ import (
 	"log"
 	"math/rand"
 	"time"
+	"errors"
+	"os"
+	"fmt"
+	"bufio"
+	"encoding/json"
+	"io"
 )
+
+const EOL = 0xA
 
 type PlantModel struct {
 	qt *qtree.Tree
@@ -79,6 +87,76 @@ func (self *PlantModel) IterateBounded(bounds geom.Rect) <-chan *Plant {
 	}()
 
 	return ch
+}
+
+// save current state to file
+func (self *PlantModel) Save(fn string) error {
+	fo, err := os.Create(fn)
+    if err != nil {
+    	return errors.New(fmt.Sprintf("Failed to open file '%v' (%v)", fn, err))
+    }
+    // close fo on exit and check for its returned error
+    defer func() {
+        if err := fo.Close(); err != nil {
+            panic(err)
+        }
+    }()
+    w := bufio.NewWriter(fo)
+
+ 	for plant := range self.Iterate() {
+ 		b, err := json.Marshal(plant)
+ 		if err != nil {
+ 			return err
+ 		}
+        if _, err := w.Write(b); err != nil {
+ 			return err
+        }
+        if err = w.WriteByte(EOL); err != nil {
+ 			return err
+        }
+    }
+
+    if err = w.Flush(); err != nil {
+    	return err
+    }
+
+    log.Println("Saved plant model to", fn)
+
+	return nil
+}
+
+// load current state from file
+func (self *PlantModel) Load(fn string) error {
+    fi, err := os.Open(fn)
+    if err != nil {
+    	return errors.New(fmt.Sprintf("Failed to open file '%v' (%v)", fn, err))
+    }
+    // close fi on exit and check for its returned error
+    defer func() {
+        if err := fi.Close(); err != nil {
+            panic(err)
+        }
+    }()	
+	r := bufio.NewReader(fi)
+	for {
+		line, err := r.ReadBytes(EOL)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		// reconstruct plant; add to qt
+		var plant *Plant
+		err = json.Unmarshal(line, &plant)
+		if err != nil {
+			return err
+		}
+		log.Println("Loaded", plant)
+		self.qt.Insert(plant)
+	}
+
+	return nil
 }
 
 // check and kill any plants dominated by this plant or this plant if

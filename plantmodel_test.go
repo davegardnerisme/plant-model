@@ -3,6 +3,8 @@ package plantmodel
 import (
 	"github.com/skelterjohn/geom"
 	"testing"
+	"github.com/nu7hatch/gouuid"	
+	"fmt"
 )
 
 func TestModelCreate(t *testing.T) {
@@ -14,7 +16,7 @@ func TestModelCreate(t *testing.T) {
 
 func TestModelIterate(t *testing.T) {
 	model := NewPlantModel(100, 100)
-	species := NewSpecies("Tree")
+	species, _ := NewSpecies("plantmodeltest1")
 	model.RandomBoundedSeed(species, geom.Rect{geom.Coord{0.0, 0.0}, geom.Coord{100.0, 100.0}}, 100)
 
 	var count int
@@ -29,7 +31,7 @@ func TestModelIterate(t *testing.T) {
 
 func TestModelBounds(t *testing.T) {
 	model := NewPlantModel(100, 100)
-	species := NewSpecies("Tree")
+	species, _ := NewSpecies("plantmodeltest2")
 	model.RandomBoundedSeed(species, geom.Rect{geom.Coord{10.0, 10.0}, geom.Coord{10.0, 20.0}}, 10)
 	model.RandomBoundedSeed(species, geom.Rect{geom.Coord{10.0, 50.0}, geom.Coord{10.0, 60.0}}, 10)
 	if model.Size() != 20 {
@@ -46,3 +48,19 @@ func TestModelBounds(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestModelSave(t *testing.T) {
+	model := NewPlantModel(100, 100)
+	species, _ := NewSpecies("plantmodeltest3")
+	model.RandomBoundedSeed(species, geom.Rect{geom.Coord{0.0, 0.0}, geom.Coord{100.0, 100.0}}, 20)
+
+	uuid, _ := uuid.NewV4()
+	fn := fmt.Sprintf("/tmp/%v", uuid.String())
+	err := model.Save(fn)
+
+	if err != nil {
+		t.FailNow()		
+	}
+}
+
+

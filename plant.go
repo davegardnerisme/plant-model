@@ -5,6 +5,7 @@ import (
 	"github.com/sdming/gosnow"
 	"github.com/skelterjohn/geom"
 	"math/rand"
+	"encoding/json"
 )
 
 var idgen *gosnow.SnowFlake
@@ -29,6 +30,22 @@ func NewPlant(species *Species, position geom.Coord) *Plant {
 		radius:   0,
 		species:  species,
 	}
+}
+
+func (self *Plant) MarshalJSON() ([]byte, error) {
+    return json.Marshal(struct{
+        Id uint64 `json:"id"`
+		Position geom.Coord `json:"position"`
+		Age      int `json:"age"`
+		Radius   float64 `json:"radius"`
+		Species  string `json:"species"`
+    }{
+        Id: self.id,
+        Position: self.position,
+        Age: self.age,
+        Radius: self.radius,
+        Species: self.species.id,
+    })
 }
 
 func (self *Plant) Bounds() (bounds geom.Rect) {

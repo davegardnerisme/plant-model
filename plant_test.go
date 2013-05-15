@@ -6,7 +6,7 @@ import (
 )
 
 func TestPlantCreate(t *testing.T) {
-	species := NewSpecies("Tree")
+	species, _ := NewSpecies("planttest1")
 	plant := NewPlant(species, geom.Coord{9.0, 13.0})
 
 	if plant.age != 0 || plant.radius != 0.0 {
@@ -15,7 +15,7 @@ func TestPlantCreate(t *testing.T) {
 }
 
 func TestPlantEquals(t *testing.T) {
-	species := NewSpecies("Tree")
+	species, _ := NewSpecies("planttest2")
 	plant1 := NewPlant(species, geom.Coord{9.0, 13.0})
 	plant2 := NewPlant(species, geom.Coord{9.0, 13.0})
 
@@ -28,7 +28,7 @@ func TestPlantEquals(t *testing.T) {
 }
 
 func TestPlantBounds(t *testing.T) {
-	species := NewSpecies("Tree")
+	species, _ := NewSpecies("planttest3")
 	plant := NewPlant(species, geom.Coord{9.0, 13.0})
 	bounds := plant.Bounds()
 	if bounds.Min.X != 9.0 || bounds.Min.Y != 13.0 {
@@ -50,7 +50,7 @@ func TestPlantBounds(t *testing.T) {
 }
 
 func TestPlantGrow(t *testing.T) {
-	species := NewSpecies("Tree")
+	species, _ := NewSpecies("planttest4")
 	plant := NewPlant(species, geom.Coord{9.0, 13.0})
 	plant.grow()
 	if plant.radius != 0.4 || plant.age != 1 || plant.isMature() {
