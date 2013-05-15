@@ -5,6 +5,7 @@ import (
 	"testing"
 	"github.com/nu7hatch/gouuid"	
 	"fmt"
+	"log"
 )
 
 func TestModelCreate(t *testing.T) {
@@ -60,6 +61,34 @@ func TestModelSave(t *testing.T) {
 
 	if err != nil {
 		t.FailNow()		
+	}
+}
+
+func TestModelLoad(t *testing.T) {
+	model := NewPlantModel(100, 100)
+	species, _ := NewSpecies("plantmodeltest4")
+	model.RandomBoundedSeed(species, geom.Rect{geom.Coord{0.0, 0.0}, geom.Coord{100.0, 100.0}}, 20)
+	model.RunSimulation(3)
+
+	uuid, _ := uuid.NewV4()
+	fn := fmt.Sprintf("/tmp/%v", uuid.String())
+	err := model.Save(fn)
+
+	if err != nil {
+		t.FailNow()		
+	}
+
+	loaded := NewPlantModel(100, 100)
+	err = loaded.Load(fn)
+
+	if err != nil {
+		log.Println(err)
+		t.FailNow()		
+	}
+
+	// check we have same number of plants
+	if model.Size() != loaded.Size() {
+		t.FailNow()
 	}
 }
 

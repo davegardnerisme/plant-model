@@ -6,6 +6,7 @@ import (
 	"github.com/skelterjohn/geom"
 	"math/rand"
 	"encoding/json"
+	"log"
 )
 
 var idgen *gosnow.SnowFlake
@@ -47,6 +48,38 @@ func (self *Plant) MarshalJSON() ([]byte, error) {
         Species: self.species.id,
     })
 }
+
+func (self *Plant) UnmarshalJSON(b []byte) error {
+	var objmap map[string]*json.RawMessage
+	if err := json.Unmarshal(b, &objmap); err != nil {
+		return err
+	}
+	log.Println(objmap)
+	if _, ok := objmap["id"]; ok {
+		json.Unmarshal(*objmap["id"], &self.id)
+	}
+	if _, ok := objmap["position"]; ok {
+		json.Unmarshal(*objmap["position"], &self.position)
+	}
+	if _, ok := objmap["age"]; ok {
+		json.Unmarshal(*objmap["age"], &self.age)
+	}
+	if _, ok := objmap["radius"]; ok {
+		json.Unmarshal(*objmap["radius"], &self.radius)
+	}
+	var speciesId string
+	if _, ok := objmap["species"]; ok {
+		json.Unmarshal(*objmap["species"], &speciesId)
+		var err error
+		self.species, err = GetSpecies(speciesId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 
 func (self *Plant) Bounds() (bounds geom.Rect) {
 	return geom.Rect{
